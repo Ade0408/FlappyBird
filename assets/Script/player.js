@@ -43,4 +43,16 @@ cc.Class({
             this.node.y -= this.gravity;
         }
     },
+
+    // 当碰撞产生的时候调用
+    onCollisionEnter: function (other, self) {
+        this.node.color = cc.Color.RED;
+    },
+
+    /**
+     * 当碰撞结束后调用
+     */
+    onCollisionExit: function (other, self) {
+        this.node.color = cc.Color.WHITE;
+    }
 });
