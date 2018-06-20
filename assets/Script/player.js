@@ -13,7 +13,15 @@ cc.Class({
 
     properties: {
 
+        // 最大高度
+        maxHeight: 0,
 
+        // 地面的高度
+        minHeight: 0,
+
+
+        // 重力
+        gravity: 2,
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -29,5 +37,10 @@ cc.Class({
 
     },
 
-    update (dt) {},
+    update (dt) {
+
+        if (this.node.y > this.minHeight) {
+            this.node.y -= this.gravity;
+        }
+    },
 });

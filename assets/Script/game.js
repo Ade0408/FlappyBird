@@ -36,6 +36,10 @@ cc.Class({
 
     onLoad () {
 
+        // 获取碰撞检测系统
+        var manager = cc.director.getCollisionManager();
+        manager.enabled = true;
+
         this.pipes = [];
         this.addPipePrefab();
 
