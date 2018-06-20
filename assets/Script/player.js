@@ -13,6 +13,7 @@ cc.Class({
 
     properties: {
 
+
     },
 
     // LIFE-CYCLE CALLBACKS:
