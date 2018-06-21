@@ -39,6 +39,17 @@ cc.Class({
             url: cc.AudioClip
         },
 
+        currentScoreLabel: {
+            default: null,
+            type: cc.Label
+        },
+
+        bestScoreLabel: {
+            default: null,
+            type: cc.Label
+        },
+
+
         pipeDistance: 0,
 
         scoreLabel: cc.Label,
@@ -77,7 +88,18 @@ cc.Class({
         Global.GameEvent.on("game_over", this, ()=>{
             this.node.stopAllActions();
 
-            let moveAction = cc.moveTo(0.35, cc.p(0, 84))
+            this.currentScoreLabel.string = this.score.toString();
+
+            var bestScore = cc.sys.localStorage.getItem("kBestScoreKey");
+
+            if (this.score > bestScore) {
+                bestScore = this.score;
+            }
+
+            this.bestScoreLabel.string = bestScore.toString();
+            cc.sys.localStorage.setItem("kBestScoreKey", bestScore);
+
+            let moveAction = cc.moveTo(0.35, cc.p(0, 84));
             this.scorePanel.runAction(moveAction);
         });
     },

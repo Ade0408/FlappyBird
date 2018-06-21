@@ -27,7 +27,6 @@ cc.Class({
         // 重力
         gravity: 2,
 
-
         jumpAudio: {
             default: null,
             url: cc.AudioClip
@@ -96,6 +95,6 @@ cc.Class({
      * 当碰撞结束后调用
      */
     onCollisionExit: function (other, self) {
-        
+
     }
 });
