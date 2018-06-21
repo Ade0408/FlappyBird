@@ -68,11 +68,21 @@ cc.Class({
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
 
-        this.pipes = [];
-        this.score = 0;
+        this.initializeData();
+
         this.addPipePrefab();
 
         this.setEvent();
+    },
+
+    initializeData: function() {
+
+        this.pipes = [];
+        this.score = 0;
+
+        this.scoreLabel.string = "0";
+
+        this.playerNode.setPosition(cc.p(-105, 6));
     },
 
     setEvent: function() {
@@ -88,6 +98,9 @@ cc.Class({
         Global.GameEvent.on("game_over", this, ()=>{
             this.node.stopAllActions();
 
+            // 取消定时器
+            this.unscheduleAllCallbacks();
+
             this.currentScoreLabel.string = this.score.toString();
 
             var bestScore = cc.sys.localStorage.getItem("kBestScoreKey");
@@ -99,7 +112,7 @@ cc.Class({
             this.bestScoreLabel.string = bestScore.toString();
             cc.sys.localStorage.setItem("kBestScoreKey", bestScore);
 
-            let moveAction = cc.moveTo(0.35, cc.p(0, 84));
+            let moveAction = cc.moveTo(0.35, cc.p(-1.8, 97));
             this.scorePanel.runAction(moveAction);
         });
     },
@@ -161,9 +174,20 @@ cc.Class({
         cc.audioEngine.play(this.addAudio);
     },
 
-    hideTutorialNode: function() {
+
+    reStart: function() {
+
+        let moveAction = cc.moveTo(0.35, cc.p(-1.8, 422));
+        this.scorePanel.runAction(moveAction);
+
+        this.initializeData();
+
+        Global.GameEvent.fire("game_restart");
+
+        setTimeout(()=>{
+            Global.GameEvent.fire("game_start");
+        }, 1000);
 
     },
-
     // update (dt) {},
 });

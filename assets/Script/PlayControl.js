@@ -51,7 +51,7 @@ cc.Class({
     },
 
     gameRestart: function(){
-        // this.gameMode = Global.GameMode.Playing;
+        this.gameMode = Global.GameMode.Invaild;
     },
 
     getMode: function () {
