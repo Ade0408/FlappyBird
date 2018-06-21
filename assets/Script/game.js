@@ -8,6 +8,8 @@
 //  - [Chinese] http://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/en/scripting/life-cycle-callbacks.html
 
+var Module = require('Module');
+
 cc.Class({
     extends: cc.Component,
 
@@ -27,8 +29,21 @@ cc.Class({
             type: cc.Node
         },
 
+        scorePanel: {
+            default: null,
+            type: cc.Node
+        },
+
+        addAudio: {
+            default: null,
+            url: cc.AudioClip
+        },
 
         pipeDistance: 0,
+
+        scoreLabel: cc.Label,
+
+        tutorialNode: cc.Node,
 
     },
 
@@ -36,36 +51,67 @@ cc.Class({
 
     onLoad () {
 
+        Module.game = this.node;
+
         // 获取碰撞检测系统
         var manager = cc.director.getCollisionManager();
         manager.enabled = true;
 
         this.pipes = [];
+        this.score = 0;
         this.addPipePrefab();
 
-        // 定时器
-        this.schedule(this.addPipePrefab, 1.5);
-        this.schedule(this.check, 1.5);
+        this.setEvent();
+    },
+
+    setEvent: function() {
+
+        Global.GameEvent.on("game_start", this, ()=>{
+            this.tutorialNode.active = false;
+            // 定时器
+            this.schedule(this.addPipePrefab, 1.5);
+            this.schedule(this.check, 1.5);
+
+        });
+
+        Global.GameEvent.on("game_over", this, ()=>{
+            this.node.stopAllActions();
+
+            let moveAction = cc.moveTo(0.35, cc.p(0, 84))
+            this.scorePanel.runAction(moveAction);
+        });
+    },
+
+    onDestroy: function() {
+
+        Global.GameEvent.off("game_start", this);
+        Global.GameEvent.off("game_over", this);
     },
 
     addPipePrefab: function() {
 
-        // 0 是down, 1 是up
-        var downPipePrefab = cc.instantiate(this.pipePrefabs[0]);
-        this.pipesNode.addChild(downPipePrefab);
+        if (Module.game.getComponent('PlayControl').getMode() === Global.GameMode.Living) {
 
-        var upPipePrefab = cc.instantiate(this.pipePrefabs[1]);
-        this.pipesNode.addChild(upPipePrefab);
+            // 0 是down, 1 是up
+            var downPipePrefab = cc.instantiate(this.pipePrefabs[0]);
+            this.pipesNode.addChild(downPipePrefab);
 
-        this.pipes.push(downPipePrefab);
-        this.pipes.push(upPipePrefab);
+            var upPipePrefab = cc.instantiate(this.pipePrefabs[1]);
+            this.pipesNode.addChild(upPipePrefab);
 
-        var randomY = Math.random() * 200;
-        upPipePrefab.setPosition(cc.p(150, 10 + randomY));
-        downPipePrefab.setPosition(cc.p(150, 10 + randomY - this.pipeDistance));
+            this.pipes.push(downPipePrefab);
+            this.pipes.push(upPipePrefab);
 
-        upPipePrefab.runAction(cc.moveBy(2, cc.p(-330, 0)));
-        downPipePrefab.runAction(cc.moveBy(2, cc.p(-330, 0)));
+            // 设置水管的固定位置
+            var randomY = Math.random() * 200;
+            upPipePrefab.setPosition(cc.p(150, 10 + randomY));
+            downPipePrefab.setPosition(cc.p(150, 10 + randomY - this.pipeDistance));
+
+            // 移动水管, 制造整个场景移动的假象
+            upPipePrefab.runAction(cc.moveBy(2, cc.p(-330, 0)));
+            downPipePrefab.runAction(cc.moveBy(2, cc.p(-330, 0)));
+        }
+
     },
 
     check: function() {
@@ -74,9 +120,9 @@ cc.Class({
 
             let tempNode = this.pipes[i];
 
-            // 已经通过, 加一分
-            if (tempNode.x <= -60) {
-
+            // 已经通过并且游戏进行中, 加一分
+            if (tempNode.x <= -60 && Module.game.getComponent('PlayControl').getMode() === Global.GameMode.Living) {
+                this.addScore();
             }
 
             // 已经超出屏幕了, 直接从内存中移除
@@ -87,10 +133,13 @@ cc.Class({
     },
 
     addScore: function() {
+        this.score += 1;
+        this.scoreLabel.string = this.score.toString();
 
+        cc.audioEngine.play(this.addAudio);
     },
 
-    start () {
+    hideTutorialNode: function() {
 
     },
 
