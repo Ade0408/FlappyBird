@@ -59,6 +59,11 @@ cc.Class({
             type: cc.Node
         },
 
+        newRecordNode: {
+            default: null,
+            type: cc.Node
+        },
+
         pipeDistance: 0,
 
         scoreLabel: cc.Label,
@@ -94,6 +99,7 @@ cc.Class({
 
         this.goldNode.active = false;
         this.silverNode.active = false;
+        this.newRecordNode.active = false;
     },
 
     setEvent: function() {
@@ -123,6 +129,13 @@ cc.Class({
                 if (this.score > bestScore) {
                     // 要将上次的最佳分数设置为第二
                     cc.sys.localStorage.setItem("kSecondScore", bestScore);
+
+                    this.newRecordNode.active = true;
+
+                    var blinkAction = cc.blink(0.5);
+                    this.newRecordNode.runAction(blinkAction);
+                } else {
+                    this.newRecordNode.active = false;
                 }
 
                 // 重新设置最佳分数
