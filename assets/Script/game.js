@@ -49,13 +49,21 @@ cc.Class({
             type: cc.Label
         },
 
+        goldNode: {
+            default: null,
+            type: cc.Node
+        },
+
+        silverNode: {
+            default: null,
+            type: cc.Node
+        },
 
         pipeDistance: 0,
 
         scoreLabel: cc.Label,
 
         tutorialNode: cc.Node,
-
     },
 
     // LIFE-CYCLE CALLBACKS:
@@ -83,6 +91,9 @@ cc.Class({
         this.scoreLabel.string = "0";
 
         this.playerNode.setPosition(cc.p(-105, 6));
+
+        this.goldNode.active = false;
+        this.silverNode.active = false;
     },
 
     setEvent: function() {
@@ -104,9 +115,26 @@ cc.Class({
             this.currentScoreLabel.string = this.score.toString();
 
             var bestScore = cc.sys.localStorage.getItem("kBestScoreKey");
+            var secondScore = cc.sys.localStorage.getItem("kSecondScore");
 
-            if (this.score > bestScore) {
+            if (this.score >= bestScore) {
+
+                // 只有是大于上一次的分数, 才将bestScore设置到kSecondScore中
+                if (this.score > bestScore) {
+                    // 要将上次的最佳分数设置为第二
+                    cc.sys.localStorage.setItem("kSecondScore", bestScore);
+                }
+
+                // 重新设置最佳分数
                 bestScore = this.score;
+                this.goldNode.active = true;
+
+            } else if (this.score >= secondScore && this.score < bestScore) {
+                this.silverNode.active = true;
+                cc.sys.localStorage.setItem("kSecondScore", this.score);
+            } else {
+                this.goldNode.active = false;
+                this.silverNode.active = false;
             }
 
             this.bestScoreLabel.string = bestScore.toString();
